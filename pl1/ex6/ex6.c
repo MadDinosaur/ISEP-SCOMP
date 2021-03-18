@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 void main() {
-    int i;
+   /* int i;
     int status;
 
     for (i = 0; i < 4; i++) {
@@ -13,7 +13,8 @@ void main() {
         }
     }
 
-    printf("This is the end.\n");
+    printf("This is the end.\n");*/
+    alineaD();
 }
 
 void alineaA() {
@@ -52,12 +53,12 @@ void alineaC() {
 void alineaD() {
     int i;
     int status;
-    int order = 0;
+    int order = 1;
 
     for (i = 0; i < 2; i++) {
         int pid = fork();
         if (pid == 0) {
-            order += 1;
+            order = order + i + 1;
             sleep(1);
         } else if (pid % 2 == 0) {
             waitpid(pid, &status, 0);
