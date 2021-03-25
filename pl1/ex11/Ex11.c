@@ -7,37 +7,30 @@
 #define ARRAY_SIZE 1000
 
 
-void popularArray(int* array)
+void popular_array(int* array)
 {
-	time_t t;
-	srand((unsigned) time (&t));
-
+	// serve apenas para popular o array de 1000 posições com números entre [0-255]. 
+	
 	for(int i = 0; i<ARRAY_SIZE;i++)
 	{
-		array[i] = rand() % 255;
+		array[i] = rand() % 256;
 	}
-
 }
 
-int verificarMax(int* array)
-{
-	for(int j = 0; j<5; j++)
+int verificar_max(int* array,int j)
+{	
+	// recebe um apontador para a primeira posição do array e verifica o maior entre cada 200 valores.
+	
+	int max = 0;
+	
+	for(int p = j*200; p < (j+1)*200; p++)
 	{
-		int max = 0;
-
-		if(fork() == 0)
+		if(array[p]> max)
 		{
-			for(int p = (j*200); p<(j*200)+200; p++)
-			{
-				if(array[p]> max)
-				{
-					max = array[p];
-				}
-			}
-
-			exit(max);
+			max = array[p];
 		}
 	}
+	return max;
 }
 
 int calculo(int* array,int* array2,int maximum)
@@ -46,9 +39,7 @@ int calculo(int* array,int* array2,int maximum)
 
 		if(parent == 0)
 		{
-			printf("TESTE TESTE CALCULO FILHO: %d,%d,%d \n", array[2],array2[2],maximum);
-
-			for(int f = 0; f<ARRAY_SIZE/2;f++)
+			for(int f = 0; f<500;f++)
 			{
 				array2[f] = ((int)array[f]/maximum)* 100;
 				printf("Output: %d \n",array2[f]);
@@ -64,47 +55,48 @@ int calculo(int* array,int* array2,int maximum)
 
 		else
 		{
-			printf("TESTE TESTE CALCULO PAI: %d,%d,%d \n", array[2],array2[2],maximum);
-
-			for(int w = (ARRAY_SIZE/2); w <ARRAY_SIZE;w++)
+			for(int w = 500; w <ARRAY_SIZE;w++)
 			{
 			   array2[w] = ((int)array[w]/maximum) * 100;
-			   printf("%.2f,%d,%d \n",(array[w]/maximum),array[w],maximum);
 			   printf("Output: %d \n", array2[w]);
 			}
-
-			wait(NULL);
-		}
-
+		}	
+		
+		wait(NULL);
 }
 
 int main(void) {
 
+	time_t t;
+	srand((unsigned) time (&t));
+
 	int array[ARRAY_SIZE];
-
-	popularArray(array); // popula o array
-
-	printf("Hello: %d \n",array[2]);
-
-	//inicializar os arrays com metade do valor do array principal, para o processo filho e processo pai fazerem as suas metades.
+	
+	popular_array(array); // popula o array
+	
+	//inicializar o array principal, para o processo filho e processo pai fazerem as suas metades.
 	int result[ARRAY_SIZE];
-
-	int status;
+	
 	int maximum = 0;
 
 	// criar os processos filhos para determinarem qual é o valor max em 1/5 do array total.
-	verificarMax(array);
-
+	for(int j=0;j<5;j++)
+	{
+		if(fork()==0)
+		{
+			exit(verificar_max(array,j));
+		}
+	}
+	
 	// espera pelos processos filhos todos terminarem para determinar o valor max de todo o array.
 	for(int d = 0; d<5;d++)
 	{
+		int status = 0;
 		wait(&status);
+		
 		if(WEXITSTATUS(status) > maximum)
 		maximum = WEXITSTATUS(status);
-		printf("Max[%d] = %d \n", d,maximum);
 	}
-
-	printf("TESTE TESTE %d,%d,%d \n", array[2],result[2],maximum);
 
 	calculo(array,result,maximum);
 
