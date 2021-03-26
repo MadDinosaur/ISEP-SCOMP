@@ -20,8 +20,10 @@ int verificar_max(int* array,int j)
 	int max = 0;
 	
 	for(int p = j*200; p < (j+1)*200; p++)
+	{
 		if(array[p]> max)
-			max = array[p];	
+		max = array[p];
+	}	
 	return max;
 }
 
