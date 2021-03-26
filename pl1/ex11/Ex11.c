@@ -10,63 +10,59 @@
 void popular_array(int* array)
 {
 	// serve apenas para popular o array de 1000 posições com números entre [0-255]. 
-	
 	for(int i = 0; i<ARRAY_SIZE;i++)
-	{
-		array[i] = rand() % 256;
-	}
+		array[i] = rand() % 256;	
 }
 
 int verificar_max(int* array,int j)
 {	
 	// recebe um apontador para a primeira posição do array e verifica o maior entre cada 200 valores.
-	
 	int max = 0;
 	
 	for(int p = j*200; p < (j+1)*200; p++)
-	{
 		if(array[p]> max)
-		{
-			max = array[p];
-		}
-	}
+			max = array[p];	
 	return max;
 }
 
-int calculo(int* array,int* array2,int maximum)
+void calculo(int* array,int* array2,int maximum)
 {
-	pid_t parent = fork();
+	pid_t p = fork();
 
-		if(parent == 0)
+		if(p == 0)
 		{
-			for(int f = 0; f<500;f++)
+			printf("VEC FILHO: ");
+			for(int f = 0; f<ARRAY_SIZE/2;f++)
 			{
-				array2[f] = ((int)array[f]/maximum)* 100;
-				printf("Output: %d \n",array2[f]);
+				array2[f] = ((int)array[f]/maximum)*100;
+				printf(" %d |",array2[f]);
 			}
-
+			printf("\n");
 			exit(0);
 		}
 
-		if(parent == -1)
+		else if(p == -1)
 		{
 			printf("ERROR");
 		}
 
 		else
 		{
-			for(int w = 500; w <ARRAY_SIZE;w++)
+			printf("VEC PAI: ");
+			for(int w = ARRAY_SIZE/2; w<ARRAY_SIZE;w++)
 			{
-			   array2[w] = ((int)array[w]/maximum) * 100;
-			   printf("Output: %d \n", array2[w]);
+			   array2[w] = ((int)array[w]/maximum)*100;
+			   printf("VEC PAI: %d \n", array2[w]);
 			}
-		}	
-		
-		wait(NULL);
+			
+			printf("\n");
+			wait(NULL);
+		}			
 }
 
 int main(void) {
 
+	// permitir o randomizer funcionar devidamente
 	time_t t;
 	srand((unsigned) time (&t));
 
@@ -77,7 +73,7 @@ int main(void) {
 	//inicializar o array principal, para o processo filho e processo pai fazerem as suas metades.
 	int result[ARRAY_SIZE];
 	
-	int maximum = 0;
+	int maximum = 0, status = 0;
 
 	// criar os processos filhos para determinarem qual é o valor max em 1/5 do array total.
 	for(int j=0;j<5;j++)
@@ -91,7 +87,6 @@ int main(void) {
 	// espera pelos processos filhos todos terminarem para determinar o valor max de todo o array.
 	for(int d = 0; d<5;d++)
 	{
-		int status = 0;
 		wait(&status);
 		
 		if(WEXITSTATUS(status) > maximum)
