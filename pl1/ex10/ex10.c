@@ -2,13 +2,16 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <time.h>
 
-#define ARR 2000
-#define DIV 10
+#define ARR 10
+#define DIV 2
 void initialize_array(int* array, int size) {
     int i;
+    time_t t;
+    srand((unsigned)time(&t));
     for (i = 0; i < size; i++) {
-        array[i] = rand()/1000000;
+        array[i] = rand()%10000;
     }
 }
 
@@ -36,7 +39,9 @@ int generate_children(int* array, int n) {
 
 void main() {
     int array[ARR];
-    int n = 424;
+
+    int n = rand()%10000;
+    
     int status;
 
     initialize_array(array, sizeof(array)/sizeof(int));
