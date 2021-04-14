@@ -1,5 +1,3 @@
-//TODO: fix prices
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -94,7 +92,7 @@ int generate_barcode_reader(int* fd_main, int* fd_child, int id) {
             printf("Reader no. %d requested information on barcode no. %d.\n", id, request.barcode);
             //waits for reply and prints it
             do {
-                pipe_status = read(fd_child[0], &product, BUFFER_SIZE);
+                pipe_status = read(fd_child[0], &product, BUFFER_SIZE + 4);
             } while(pipe_status <= 0);
             printf("Reader no. %d displayed product: %s %.2f€\n", id, product.name, product.price);
         }
@@ -142,7 +140,7 @@ int main (void) {
         Product requested = search_product(request.barcode);
         //DEBUGGING
         //printf("Barcode: %d, Name: %s, Price: %.2f\n", request.barcode, requested.name, requested.price);
-        write(fd_child[request.readerID][1], &requested, BUFFER_SIZE);
+        write(fd_child[request.readerID][1], &requested, BUFFER_SIZE + 4);
     }
     
     //closes read descriptor on main pipe

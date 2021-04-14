@@ -1,5 +1,3 @@
-//TODO: Fix round numbers...
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -26,7 +24,7 @@ void generate_children(int* fd) {
             //closes write descriptor - unused by child
             close(fd[1]);
             //tries to read from pipe
-            if (read(fd[0], &msg, BUFFER_SIZE) > 0) {
+            if (read(fd[0], &msg, BUFFER_SIZE + 4) > 0) {
                 printf("%s, Round no. %d.\n", msg.str, msg.round_no);
                 //closes write descriptor
                 close(fd[1]);
@@ -66,9 +64,7 @@ int main (void) {
             time = elapsed_time;
             
             msg.round_no = msg.round_no + 1;
-            write(fd[1], &msg, BUFFER_SIZE);
-
-            printf("%d\n", msg.round_no);
+            write(fd[1], &msg, BUFFER_SIZE + 4);
         }
     }
 
