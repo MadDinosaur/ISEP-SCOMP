@@ -149,12 +149,10 @@ int main() {
 
 	else if(id == 0)
 	{
-		babyFuneral(NBABIES);
-
 		close(fd_pipe[1]);
 		read(fd_pipe[0],array,sizeof(array));
 		close(fd_pipe[0]);
-
+		babyFuneral(NBABIES);
 		end = clock();
 		printf("Pipe took %f sec \n", ((double) (end - start)) / CLOCKS_PER_SEC);
 	}
