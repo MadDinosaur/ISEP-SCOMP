@@ -1,17 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <sys/mman.h>
-#include <fcntl.h>
 #include <sys/stat.h>
-#include <time.h>
-#include <string.h>
-#include <limits.h>
+#include <fcntl.h>
 
 #define NBABIES 1
 #define EXECUTION_TIMES 1000000
+
+typedef struct
+{
+	int value1;
+	int value2;
+	int number_operations;
+}Numbers;
+
+Numbers fill_struct()
+{
+	Numbers shared_data;
+	shared_data.value1 = 8000;
+	shared_data.value2 = 200;
+	shared_data.number_operations = 0;
+
+	return shared_data;
+}
 
 int babyMaker(int n)
 {
@@ -50,25 +64,24 @@ void babyFuneral(int n)
 
 int main() {
 
-	int *map;
+	Numbers *shared_memory_data;
 
-	int fd, size=sizeof(map);
+	int fd, size=sizeof(shared_memory_data);
 
-	if((fd = shm_open("/shmtest", O_CREAT | O_RDWR | O_TRUNC, S_IRWXU | S_IRWXG | S_IRWXO)) <0)
+	if((fd = shm_open("/shmtest", O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR)) <0)
 		perror("Failed to create shared memory");
 
 	if(ftruncate(fd, size)<0)
 		perror("Failed to adjust memory size");
 
-	map = (int *)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	shared_memory_data = (Numbers *)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
-	if (map == NULL) {
+	if (shared_memory_data == NULL) {
 		perror("No mmap()");
 		exit(0);
 	}
 
-	int value1 = 8000;
-	int value2 = 200;
+	*shared_memory_data = fill_struct();
 
 	int id = babyMaker(NBABIES);
 
@@ -79,27 +92,37 @@ int main() {
 
 	else if(id == 0)
 	{
-		babyFuneral(NBABIES);
-
-		for(int i = 0; i < EXECUTION_TIMES;i++)
+		while(shared_memory_data->number_operations < 2 * EXECUTION_TIMES)
 		{
-			value1++;
-			value2--;
+			if(shared_memory_data->number_operations % 2 == 0)
+			{
+				shared_memory_data->value1++;
+				shared_memory_data->value2--;
+				shared_memory_data->number_operations++;
+			}
 		}
 	}
 
 	else
 	{
-		for(int i = 0; i < EXECUTION_TIMES;i++)
+		while(shared_memory_data->number_operations < 2 * EXECUTION_TIMES)
 		{
-			value1--;
-			value2++;
+			if(shared_memory_data->number_operations % 2 == 1)
+			{
+				shared_memory_data->value1--;
+				shared_memory_data->value2++;
+				shared_memory_data->number_operations++;
+			}
 		}
 
 		exit(0);
 	}
 
-	if(munmap(map, size)<0){
+	printf("Value nº 1: %d\n",shared_memory_data->value1);
+	printf("Value nº 2: %d\n",shared_memory_data->value2);
+	printf("Number of operations: %d\n",shared_memory_data->number_operations);
+
+	if(munmap(shared_memory_data, size)<0){
 		perror("No munmap()");
 		exit(0);
 	}
@@ -109,8 +132,10 @@ int main() {
 		exit(0);
 	}
 
-	printf("Value nº 1: %d\n",value1);
-	printf("Value nº 2: %d\n",value2);
+    if(shm_unlink("/shmtest")<0){
+        perror("No unlink()");
+        exit(1);
+    }
 
 	printf("Job done. Shutting down...\n");
 
