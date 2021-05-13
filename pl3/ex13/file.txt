@@ -1,0 +1,2 @@
+hello type struct
+new one step step
