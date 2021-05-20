@@ -65,10 +65,8 @@ void consult_all(sem_t* sem) {
 int main(void) {
     sem_t *sem_file;
 
-    sem_unlink("semaforo_fd");
-
     //Creates semaphore for shared memory access
-    if ((sem_file = sem_open("semaforo_fd", O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED) {
+    if ((sem_file = sem_open("semaforo_fd", O_CREAT, 0644, 1)) == SEM_FAILED) {
         perror("Error in sem_open()");
         exit(1);
     }

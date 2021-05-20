@@ -39,7 +39,7 @@ void insert(sem_t* sem, char* number, char* name, char* addr) {
     int fd, data_size = sizeof(Records);
     Records* r;
      //Creates shared memory area
-    if ((fd = shm_open("/ex10", O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR)) < 0)
+    if ((fd = shm_open("/ex10", O_CREAT|O_RDWR, S_IRUSR|S_IWUSR)) < 0)
         perror("Failed to create shared memory");
     //Defines memory size
     if (ftruncate (fd, data_size) < 0)
@@ -76,7 +76,7 @@ int main(void) {
     sem_unlink("semaforo_fd");
     
     //Creates semaphore for shared memory access
-    if ((sem_file = sem_open("semaforo_fd", O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED) {
+    if ((sem_file = sem_open("semaforo_fd", O_CREAT, 0644, 1)) == SEM_FAILED) {
         perror("Error in sem_open()");
         exit(1);
     }
