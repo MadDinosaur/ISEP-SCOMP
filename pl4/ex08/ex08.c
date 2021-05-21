@@ -13,7 +13,6 @@
 #define NUM_PROCESSES 1
 
 void down(sem_t *sem) {
-    //printf("hello i'm down\n");
     if (sem_wait(sem) == -1) {
         perror("Error at sem_wait().");
         exit(0);
@@ -21,7 +20,6 @@ void down(sem_t *sem) {
 }
 
 void up(sem_t *sem) {
-    //printf("hello i'm up\n");
     if (sem_post(sem) == -1) {
         perror("Error at sem_post().");
         exit(0);
