@@ -34,4 +34,19 @@ int main(void) {
     printf("Product code: %d\n", p->productCode);
     printf("Description: %s\n", p->description);
     printf("Price: %.2f\n", p->price);
+
+    if(munmap(a, data_size)<0){
+        perror("No munmap()");
+        exit(0);
+    }
+
+    if(close(fd)<0){
+        perror("No close()");
+        exit(0);
+    }
+
+    if(shm_unlink("/ex04")<0){
+        perror("No unlink()");
+        exit(1);
+    }
 }
