@@ -9,7 +9,7 @@
 #include <time.h>
 #include<sys/wait.h>
 
-#define ARR_SIZE 1000000
+#define ARR_SIZE 10
 
 typedef struct {
     int number;
@@ -50,8 +50,8 @@ int main (void) {
         //Write number to shared memory
         n->number = generate_random_number();
         
+        if (pid = fork() > 0) {
         //Assigns a child to access shared memory and read the number
-        if ((pid = fork()) > 0) {
             //Accesses shared memory area
             if ((fd = shm_open("/ex06", O_RDWR, S_IRUSR|S_IWUSR)) < 0)
                 perror("Failed to create shared memory");
@@ -70,10 +70,29 @@ int main (void) {
 
             exit(0);
         }
+    } 
+
+    for (int j = 0; j < ARR_SIZE; j++) {
+        wait(NULL);
+    }
+    
+    if(munmap(n, data_size)<0){
+        perror("No munmap()");
+        exit(0);
     }
 
-    while (wait(NULL) != -1);
+    if(close(fd)<0){
+        perror("No close()");
+        exit(0);
+    }
 
+    if(shm_unlink("/ex06")<0){
+        perror("No unlink()");
+        exit(1);
+    }
+    
     end = clock();
-    printf("Time elapsed = %d", end - start);
+
+    printf("Time elapsed = %d\n", start - end);
+    return 0;
 }
