@@ -164,8 +164,8 @@ int main(void) {
             num_sold++;
             up(sem);
         }
-
-        closeSharedMemory(t, shm);
-        closeSemaphore(sem);
     }
+    
+    closeSharedMemory(t, shm);
+    closeSemaphore(sem);
 }
